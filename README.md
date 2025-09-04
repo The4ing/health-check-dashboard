@@ -62,10 +62,7 @@ python app/main.py
 ### Docker
 ```bash
 docker build -t health-check-dashboard .
-docker run --name hcd -p 5000:5000 ^
-  -e DATA_DIR=/data ^
-  -v %cd%\data:/data ^
-  health-check-dashboard
+docker run --name hcd -p 5000:5000 -e DATA_DIR=/data -v ${PWD}\data:/data health-check-dashboard
 # http://localhost:5000
 ```
 
