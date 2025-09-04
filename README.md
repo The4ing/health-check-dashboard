@@ -1,6 +1,6 @@
 # 🩺 Health Check Dashboard
 
-[![CI/CD](https://github.com/The4ing/health-check-dashboard/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/The4ing/health-check-dashboard/actions)
+[![CI/CD](https://github.com/The4ing/health-check-dashboard/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/The4ing/health-check-dashboard/actions/workflows/ci-cd.yml)
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![Docker](https://img.shields.io/badge/Container-Docker-informational)
 ![Kubernetes](https://img.shields.io/badge/Orchestration-Kubernetes-326ce5)
