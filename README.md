@@ -8,7 +8,7 @@
 
 A lightweight dashboard for monitoring websites: checks response times and status (UP/DOWN), displays a table and live chart, allows adding/removing sites from the UI, and exposes Prometheus metrics for monitoring.
 
-> 🐣 **Easter-egg**: _please hire me 🙃_
+> 🐣 **Easter-egg**: _look for the hidden text_
 
 ---
 
