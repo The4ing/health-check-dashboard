@@ -20,36 +20,30 @@ RESPONSE_TIME = Histogram(
 
 app = Flask(__name__)
 
-# ----- היכן נשמור את הקובץ עם האתרים -----
-# מומלץ להגדיר DATA_DIR לספרייה מקומית (לדוגמה ב־Windows: $env:DATA_DIR="$PWD\data")
-DATA_DIR = os.getenv("DATA_DIR", "/data")  # בדוקר/קוברנטיס נשתמש בווליום ל-/data
+# savingfiles path
+# Windows: $env:DATA_DIR="$PWD\data")
+DATA_DIR = os.getenv("DATA_DIR", "/data")
 SITES_FILE = Path(DATA_DIR) / "sites.txt"
 
-# רשימת ברירת מחדל (תרוץ בפעם הראשונה; תיכתב ל-sites.txt כדי להתחיל ממנה)
 DEFAULT_SITES = [
     "https://google.com",
     "https://cyberark.com",
     "https://github.com",
 ]
 
-# כותרות ברירת מחדל לבקשות (עוזר מול WAF/CDN)
 HTTP_HEADERS = {"User-Agent": "Mozilla/5.0 (HealthCheckBot/1.0)"}
 
-# Regex לדומיין תקין
+# Regex for correct domain
 HOSTNAME_RE = re.compile(r"^(localhost|([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,63})$")
 
-
-# ----- עזר: ולידציה בסיסית ל-URL -----
 def is_valid_url(u: str) -> bool:
     try:
         if not isinstance(u, str):
             return False
         u = u.strip()
-        # אין רווחים/תווי לבן באמצע
         if not u or any(ch.isspace() for ch in u):
             return False
 
-        # הוסף https:// אם חסר
         if "://" not in u:
             u = "https://" + u
 
@@ -61,14 +55,14 @@ def is_valid_url(u: str) -> bool:
         if not host:
             return False
 
-        # IP חוקית?
+        # legel IP b
         try:
             ipaddress.ip_address(host)
             return True
         except ValueError:
             pass
 
-        # שם דומיין תקין או localhost
+        # valid domain or localhost
         return HOSTNAME_RE.fullmatch(host) is not None
     except Exception:
         return False
@@ -80,7 +74,7 @@ def normalize_url(u: str) -> str:
         return u
     if "://" not in u:
         u = "https://" + u
-    if len(u) > 1 and u.endswith("/"):  # אחידות: בלי סלאש סופי
+    if len(u) > 1 and u.endswith("/"):
         u = u[:-1]
     return u
 
@@ -94,7 +88,6 @@ def dedup(items):
     return out
 
 
-# ----- טעינת רשימת האתרים לפי סדר עדיפויות: sites.txt ← SITES env ← DEFAULT -----
 def load_sites():
     # 1) sites.txt (Persisted)
     if SITES_FILE.exists():
@@ -112,22 +105,18 @@ def load_sites():
         if sites:
             return dedup(sites)
 
-    # 3) default (First run) — וגם נכתוב אותו ל-sites.txt כדי להתחיל מרשימה קיימת
+    # 3) default (First run)
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(SITES_FILE, "w", encoding="utf-8") as f:
         f.write("\n".join(DEFAULT_SITES) + "\n")
     return DEFAULT_SITES[:]
 
-
-# נשמור בזיכרון ונעדכן כשיש הוספה/מחיקה
 SITES = load_sites()
-
 
 def save_sites():
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(SITES_FILE, "w", encoding="utf-8") as f:
         f.write("\n".join(SITES) + "\n")
-
 
 def check_sites():
     results = []
@@ -171,8 +160,6 @@ def home():
         "index.html", results=data, summary={"up": up, "total": len(data)}, sites=SITES
     )
 
-
-# ----- הוספת אתר דרך ה-UI -----
 @app.route("/add-site", methods=["POST"])
 def add_site():
     new_site = normalize_url((request.form.get("site") or ""))
@@ -182,8 +169,6 @@ def add_site():
         save_sites()
     return redirect(url_for("home"))
 
-
-# ----- מחיקת אתר דרך ה-UI -----
 @app.route("/remove-site", methods=["POST"])
 def remove_site():
     target = normalize_url((request.form.get("site") or ""))
@@ -194,5 +179,4 @@ def remove_site():
 
 
 if __name__ == "__main__":
-    # לשימוש גם בדוקר/קוברנטיס
     app.run(host="0.0.0.0", port=5000)
